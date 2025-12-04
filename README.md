@@ -23,5 +23,6 @@ RUSTFLAGS="-C target-cpu=haswell" cargo build --release --features accelerate --
 ```
 git clone https://github.com/EricLBuehler/mistral.rs.git
 cd mistral.rs
+LIBCLANG_PATH=""
 cargo build --release
 ```
