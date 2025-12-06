@@ -28,7 +28,7 @@ Here are a few models smaller than a gigabyte:
 |[Qwen3](https://huggingface.co/EricB/Qwen3-1.7B-UQFF/resolve/main/qwen31.7b-q4k-0.uqff)|`1.7B`|`Q4K_0`|`968 MB`|
 |[Llama 3.2](https://huggingface.co/EricB/Llama-3.2-1B-Instruct-UQFF/resolve/main/llama3.2-1b-instruct-q5k.uqff)|`1B`|`Q5_K`|`850 MB`|
 
-Vision models are tend to exceed `4` gigabytes:
+Vision models tend to exceed `4` gigabytes:
 
 |Model|Parameters|Quantisation|Size|
 |-|-:|-:|
