@@ -13,7 +13,7 @@ layout: default
 
 [**mistral.rs**](https://github.com/EricLBuehler/mistral.rs) is a multimodal local inference engine with a [Candle](https://github.com/huggingface/candle) backend that supports many LLM models and families, such as Mistral, Llama, Qwen, Gemma, Phi, StarCoder, and more. 
 
-mistral․rs is designed to work primarily with native Hugging Face models while reducing memory consumption by quantising  at runtime ([ISQ](https://github.com/EricLBuehler/mistral.rs/blob/master/docs/ISQ.md)). There is also a [tool](https://github.com/EricLBuehler/uqff_maker) to save the model in [quantised format ](https://github.com/EricLBuehler/mistral.rs/blob/master/docs/UQFF.md). Some models can be loaded from .gguf files.
+mistral․rs is designed to **work directly with native Hugging Face models** while reducing memory consumption by quantising  at runtime ([ISQ](https://github.com/EricLBuehler/mistral.rs/blob/master/docs/ISQ.md)). There is also a [tool](https://github.com/EricLBuehler/uqff_maker) to save the model in [quantised format ](https://github.com/EricLBuehler/mistral.rs/blob/master/docs/UQFF.md). Some models can be loaded from .gguf files.
 
 mistral․rs has a build in HTTP server with Open AI compatible endpoints. The server can automatically [**connect to external MCP servers**](https://github.com/EricLBuehler/mistral.rs/blob/master/examples/MCP_QUICK_START.md).
 
