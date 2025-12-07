@@ -1,2 +1,4 @@
 HuggingFace.token
 models/*
+mistral-rs/userPreferences.*
+mistral-rs/Data/*
