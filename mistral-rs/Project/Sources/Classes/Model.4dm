@@ -26,24 +26,20 @@ Class constructor($port : Integer; $file : 4D:C1709.File; $URL : Text; $options 
 	
 	Case of 
 		: (OB Instance of:C1731($file; 4D:C1709.File))
-			Case of 
-				: ($URL="http@")
-					If (Not:C34(This:C1470.file.exists))
-						If (This:C1470.file.parent#Null:C1517)
-							This:C1470.file.parent.create()
-							This:C1470._fileHandle:=This:C1470.file.open("write")
-							4D:C1709.HTTPRequest.new(This:C1470.URL; This:C1470)
-						End if 
-					Else 
-						This:C1470.start()
-					End if 
-				Else 
-					This:C1470.options.model:=$URL
-					If ($file.extension=".uqff")
-						This:C1470.options.from_uqff:=$URL+$file.fullName
-					End if 
-					This:C1470.start()
-			End case 
+			If (Not:C34(This:C1470.file.exists))
+				If (This:C1470.file.parent#Null:C1517)
+					This:C1470.file.parent.create()
+					This:C1470._fileHandle:=This:C1470.file.open("write")
+					4D:C1709.HTTPRequest.new(This:C1470.URL; This:C1470)
+				End if 
+			Else 
+				This:C1470.start()
+			End if 
+		Else 
+			//hugging face mode
+			This:C1470.options.model:=$URL
+			This:C1470.file:={name: $URL}
+			This:C1470.start()
 	End case 
 	
 Function start()

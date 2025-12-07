@@ -17,6 +17,81 @@ mistral․rs is designed to **work directly with native Hugging Face models** wh
 
 mistral․rs has a build in HTTP server with Open AI compatible endpoints. The server can automatically [**connect to external MCP servers**](https://github.com/EricLBuehler/mistral.rs/blob/master/examples/MCP_QUICK_START.md).
 
+#### Usage
+
+Instantiate `cs.mistral.mistral` in your *On Startup* database method:
+
+```4d
+var $mistral : cs.mistral.mistral
+
+If (False)
+    $mistral:=cs.mistral.mistral.new()  //default
+Else 
+    var $modelsFolder : 4D.Folder
+    $modelsFolder:=Folder(fk home folder).folder(".mistral-rs")
+    var $URL : Text
+    var $file : 4D.File
+    If (False)
+        //custom model download mode
+        $URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
+        $file:=$modelsFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
+        $mistral:=cs.mistral.new($port; $file; $URL; {command: "gguf"}; Formula(ALERT(This.file.name+($1.success ? " started!" : " did not start..."))))
+    Else 
+        //hugging face mode
+        $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
+        $mistral:=cs.mistral.mistral.new($port; Null; $URL; {command: "vision-plain"}; Formula(ALERT(This.file.name+($1.success ? " started!" : " did not start..."))))
+    End if 
+End if 
+```
+
+Unless the server is already running (in which case the costructor does nothing), the following procedure runs in the background:
+
+1. The specified model is download via HTTP
+2. The `mistralrs-server` program is started
+
+Now you can test the server:
+
+```
+curl -X POST http://127.0.0.1:8080/v1/embeddings \
+     -H "Content-Type: application/json" \
+     -d '{"input":"The quick brown fox jumps over the lazy dog."}'
+```
+
+Or, use AI Kit:
+
+```4d
+var $AIClient : cs.AIKit.OpenAI
+$AIClient:=cs.AIKit.OpenAI.new()
+$AIClient.baseURL:="http://127.0.0.1:8080/v1"
+
+var $text : Text
+$text:="The quick brown fox jumps over the lazy dog."
+
+var $responseEmbeddings : cs.AIKit.OpenAIEmbeddingsResult
+$responseEmbeddings:=$AIClient.embeddings.create($text)
+```
+
+Finally to terminate the server:
+
+```4d
+var $mistral : cs.mistral.mistral
+$mistral:=cs.mistral.mistral.new()
+$mistral.terminate()
+```
+
+#### AI Kit compatibility
+
+The API is compatibile with [Open AI](https://platform.openai.com/docs/api-reference/embeddings). 
+
+|Class|API|Availability|
+|-|-|:-:|
+|Models|`/v1/models`|✅|
+|Chat|`/v1/chat/completions`|✅|
+|Images|`/v1/images/generations`|✅|
+|Moderations|`/v1/moderations`||
+|Embeddings|`/v1/embeddings`|✅|
+|Files|`/v1/files`||
+
 #### Models
 
 You can find popular quantised UQFF models on [Hugging Face](https://huggingface.co/collections/EricB/uqff), except for image generation.
@@ -34,19 +109,6 @@ Vision models tend to exceed `4` gigabytes:
 |-|-:|-:|
 |[Phi-3.5](https://huggingface.co/EricB/Phi-3.5-vision-instruct-UQFF/resolve/main/phi3.5-vision-instruct-q4k.uqff)|`4.2B`|`Q4`|`2.09 GB`|
 |[Llama 3.2](https://huggingface.co/EricB/Llama-3.2-11B-Vision-Instruct-UQFF/resolve/main/llama3.2-vision-instruct-q4k.uqff)|`11B`|`Q4K`|`4.37 GB`|
-
-#### AI Kit compatibility
-
-The API is compatibile with [Open AI](https://platform.openai.com/docs/api-reference/embeddings). 
-
-|Class|API|Availability|
-|-|-|:-:|
-|Models|`/v1/models`|✅|
-|Chat|`/v1/chat/completions`|✅|
-|Images|`/v1/images/generations`|✅|
-|Moderations|`/v1/moderations`||
-|Embeddings|`/v1/embeddings`|✅|
-|Files|`/v1/files`||
 
 #### Image Generation
 
@@ -88,3 +150,4 @@ If ($result.image#Null)
 End if 
 ```
 
+But realistically, the server will crash unless it has GPU and `32 GB` or more VRAM.
