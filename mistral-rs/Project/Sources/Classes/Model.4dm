@@ -7,6 +7,8 @@ property file : 4D:C1709.File
 property options : Object
 property _onResponse : 4D:C1709.Function
 property _fileHandle : 4D:C1709.FileHandle
+property returnResponseBody : Boolean
+property decodeData : Boolean
 
 Class constructor($port : Integer; $file : 4D:C1709.File; $URL : Text; $options : Object; $formula : 4D:C1709.Function)
 	
@@ -19,10 +21,10 @@ Class constructor($port : Integer; $file : 4D:C1709.File; $URL : Text; $options 
 	This:C1470.options:=$options#Null:C1517 ? $options : {}
 	//This.options.embeddings:=True
 	This:C1470.options.port:=$port
+	This:C1470.options.model:=$file
 	This:C1470._onResponse:=$formula
 	This:C1470.returnResponseBody:=False:C215
 	This:C1470.decodeData:=True:C214
-	This:C1470.options.model:=$file
 	
 	Case of 
 		: (OB Instance of:C1731($file; 4D:C1709.File))
@@ -53,16 +55,12 @@ Function start()
 		This:C1470._onResponse.call(This:C1470; {success: True:C214})
 	End if 
 	
-	//KILL WORKER
-	
 Function terminate()
 	
 	var $mistral : cs:C1710._worker
 	$mistral:=cs:C1710._worker.new()
 	
-	$mistral.terminate(This:C1470.options.port)
-	
-	//KILL WORKER
+	$mistral.terminate()
 	
 Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
 	
@@ -71,7 +69,6 @@ Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
 Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 	
 	If ($request.response.status=200) && ($request.dataType="blob")
-		//This.file.setContent($request.response.body)
 		This:C1470.start()
 	End if 
 	
