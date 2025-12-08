@@ -99,14 +99,14 @@ You can find popular quantised UQFF models on [Hugging Face](https://huggingface
 Here are a few models smaller than a gigabyte:
 
 |Model|Parameters|Quantisation|Size|
-|-|-:|-:|
+|-|-:|-:|-:|
 |[Qwen3](https://huggingface.co/EricB/Qwen3-1.7B-UQFF/resolve/main/qwen31.7b-q4k-0.uqff)|`1.7B`|`Q4K_0`|`968 MB`|
 |[Llama 3.2](https://huggingface.co/EricB/Llama-3.2-1B-Instruct-UQFF/resolve/main/llama3.2-1b-instruct-q5k.uqff)|`1B`|`Q5_K`|`850 MB`|
 
 Vision models tend to exceed `4` gigabytes:
 
 |Model|Parameters|Quantisation|Size|
-|-|-:|-:|
+|-|-:|-:|-:|
 |[Phi-3.5](https://huggingface.co/EricB/Phi-3.5-vision-instruct-UQFF/resolve/main/phi3.5-vision-instruct-q4k.uqff)|`4.2B`|`Q4`|`2.09 GB`|
 |[Llama 3.2](https://huggingface.co/EricB/Llama-3.2-11B-Vision-Instruct-UQFF/resolve/main/llama3.2-vision-instruct-q4k.uqff)|`11B`|`Q4K`|`4.37 GB`|
 
