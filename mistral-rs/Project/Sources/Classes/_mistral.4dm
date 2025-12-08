@@ -8,7 +8,6 @@ Class constructor($command : Text; $controller : 4D:C1709.Class)
 	
 	var $program : Text
 	
-	var $program : Text
 	Case of 
 		: (Is macOS:C1572) && (Get system info:C1571.processor#"@Apple@")
 			$program:="mistralrs-server-x86_64"
