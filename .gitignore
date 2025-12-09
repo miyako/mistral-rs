@@ -2,3 +2,7 @@ HuggingFace.token
 models/*
 mistral-rs/userPreferences.*
 mistral-rs/Data/*
+mistral-rs/Project/DerivedData/*
+mistral-rs/Libraries/lib4d-arm64.dylib
+mistral-rs/Resources/en.lproj/syntaxEN.json
+mistral-rs/Settings/buildApp.4DSettings
