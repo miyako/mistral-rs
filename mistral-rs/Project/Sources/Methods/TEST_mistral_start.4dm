@@ -8,7 +8,7 @@ Else
 	$modelsFolder:=Folder:C1567(fk home folder:K87:24).folder(".mistral-rs")
 	var $URL : Text
 	var $file : 4D:C1709.File
-	If (False:C215)
+	If (True:C214)
 		//custom model download mode
 		$URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
 		$file:=$modelsFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
