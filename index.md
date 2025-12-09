@@ -35,7 +35,7 @@ Else
         //custom model download mode
         $URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
         $file:=$modelsFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
-        $mistral:=cs.mistral.new($port; $file; $URL; {command: "gguf"}; Formula(ALERT(This.file.name+($1.success ? " started!" : " did not start..."))))
+        $mistral:=cs.mistral.mistral.new($port; $file; $URL; {command: "gguf"}; Formula(ALERT(This.file.name+($1.success ? " started!" : " did not start..."))))
     Else 
         //hugging face mode
         $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
