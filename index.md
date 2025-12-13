@@ -42,9 +42,9 @@ Else
         Function onSuccess($params : Object)
     */
     $event.onError:=Formula(ALERT($2.message))
-    $event.onSuccess:=Formula(ALERT($1.model.name+" loaded!"))
+    $event.onSuccess:=Formula(ALERT(This.file.name+" loaded!"))
     
-    If (True)
+    If (False)
         //custom model download mode
         $URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
         $file:=$modelsFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
@@ -54,7 +54,7 @@ Else
         $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
         $mistral:=cs.mistral.mistral.new($port; Null; $URL; {command: "vision-plain"}; $event)
     End if 
-End if 
+End if  
 ```
 
 Unless the server is already running (in which case the costructor does nothing), the following procedure runs in the background:
