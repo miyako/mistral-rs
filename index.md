@@ -31,15 +31,28 @@ Else
     $modelsFolder:=Folder(fk home folder).folder(".mistral-rs")
     var $URL : Text
     var $file : 4D.File
-    If (False)
+    
+    var $port : Integer
+    $port:=8080
+    
+    var $event : cs.mistral.mistralEvent
+    $event:=cs.mistral.mistralEvent.new()
+    /*
+        Function onError($params : Object; $error : cs._error)
+        Function onSuccess($params : Object)
+    */
+    $event.onError:=Formula(ALERT($2.message))
+    $event.onSuccess:=Formula(ALERT($1.model.name+" loaded!"))
+    
+    If (True)
         //custom model download mode
         $URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
         $file:=$modelsFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
-        $mistral:=cs.mistral.mistral.new($port; $file; $URL; {command: "gguf"}; Formula(ALERT(This.file.name+($1.success ? " started!" : " did not start..."))))
+        $mistral:=cs.mistral.mistral.new($port; $file; $URL; {command: "gguf"}; $event)
     Else 
         //hugging face mode
         $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
-        $mistral:=cs.mistral.mistral.new($port; Null; $URL; {command: "vision-plain"}; Formula(ALERT(This.file.name+($1.success ? " started!" : " did not start..."))))
+        $mistral:=cs.mistral.mistral.new($port; Null; $URL; {command: "vision-plain"}; $event)
     End if 
 End if 
 ```
@@ -78,19 +91,6 @@ var $mistral : cs.mistral.mistral
 $mistral:=cs.mistral.mistral.new()
 $mistral.terminate()
 ```
-
-#### AI Kit compatibility
-
-The API is compatibile with [Open AI](https://platform.openai.com/docs/api-reference/embeddings). 
-
-|Class|API|Availability|
-|-|-|:-:|
-|Models|`/v1/models`|✅|
-|Chat|`/v1/chat/completions`|✅|
-|Images|`/v1/images/generations`|✅|
-|Moderations|`/v1/moderations`||
-|Embeddings|`/v1/embeddings`|✅|
-|Files|`/v1/files`||
 
 #### Models
 
@@ -151,3 +151,16 @@ End if
 ```
 
 But realistically, the server will crash unless it has GPU and `32 GB` or more VRAM.
+
+#### AI Kit compatibility
+
+The API is compatibile with [Open AI](https://platform.openai.com/docs/api-reference/embeddings). 
+
+|Class|API|Availability|
+|-|-|:-:|
+|Models|`/v1/models`|✅|
+|Chat|`/v1/chat/completions`|✅|
+|Images|`/v1/images/generations`|✅|
+|Moderations|`/v1/moderations`||
+|Embeddings|`/v1/embeddings`|✅|
+|Files|`/v1/files`||
