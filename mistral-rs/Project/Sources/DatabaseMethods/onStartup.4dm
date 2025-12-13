@@ -20,7 +20,7 @@ Function onSuccess($params : Object)
 	$event.onError:=Formula:C1597(ALERT:C41($2.message))
 	$event.onSuccess:=Formula:C1597(ALERT:C41(This:C1470.file.name+" loaded!"))
 	
-	If (False:C215)
+	If (True:C214)
 		//custom model download mode
 		$URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
 		$file:=$modelsFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
