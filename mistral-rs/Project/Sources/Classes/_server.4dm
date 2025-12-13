@@ -2,7 +2,7 @@ Class extends _mistral
 
 Class constructor($controller : 4D:C1709.Class)
 	
-	Super:C1705("server"; $controller)
+	Super:C1705($controller)
 	
 Function start($option : Object) : 4D:C1709.SystemWorker
 	
@@ -116,6 +116,8 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 				//
 		End case 
 	End for each 
+	
+	//SET TEXT TO PASTEBOARD($command)
 	
 	return This:C1470.controller.execute($command; $isStream ? $option.model : Null:C1517; $option.data).worker
 	

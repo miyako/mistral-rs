@@ -1,6 +1,6 @@
 Class extends _CLI
 
-Class constructor($command : Text; $controller : 4D:C1709.Class)
+Class constructor($controller : 4D:C1709.Class)
 	
 	If (Not:C34(OB Instance of:C1731($controller; cs:C1710._mistral_Controller)))
 		$controller:=cs:C1710._mistral_Controller
@@ -9,7 +9,7 @@ Class constructor($command : Text; $controller : 4D:C1709.Class)
 	var $program : Text
 	
 	Case of 
-		: (Is macOS:C1572) && (Get system info:C1571.processor#"@Apple@")
+		: (Is macOS:C1572) && (System info:C1571.processor#"@Apple@")
 			$program:="mistralrs-server-x86_64"
 		Else 
 			$program:="mistralrs-server"
