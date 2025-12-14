@@ -22,23 +22,35 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 		$i:=1
 		For each ($model; $option.models)
 			
-			$key:="model_"+String:C10($i)
+			$entry:="model_"+String:C10($i)
 			$i+=1
 			$item:={}
 			$content:={}
 			
-			Case of 
-				: (Value type:C1509($model.file)=Is object:K8:27)\
-					 && ((OB Instance of:C1731($model.file; 4D:C1709.File)) || (OB Instance of:C1731($model.file; 4D:C1709.Folder)))\
-					 && ($model.file.exists)
-					$content.tok_model_id:=$model.model_id
-					$content.quantized_model_id:=$model.file.parent.path
-					$content.quantized_filename:=$model.file.fullName
-					$item.GGUF:=$content
-				Else 
-					$item.Plain:=$content
-					$content.model_id:=$model.model_id
-			End case 
+			If ($model.model="")
+				$model.model:="Plain"
+			End if 
+			
+			For each ($arg; OB Entries:C1720($model.options))
+				$valueType:=Value type:C1509($arg.value)
+				$key:=$arg.key
+				Case of 
+					: ($valueType=Is real:K8:4)
+						$content[$key]:=$arg.value
+					: ($valueType=Is text:K8:3)
+						$content[$key]:=$arg.value
+					: ($valueType=Is boolean:K8:9)
+						$content[$key]:=$arg.value
+					: ($valueType=Is object:K8:27) && ((OB Instance of:C1731($arg.value; 4D:C1709.File)) || (OB Instance of:C1731($arg.value; 4D:C1709.Folder)))
+						$content[$key]:=This:C1470.expand($arg.value).path
+					Else 
+						//
+				End case 
+			End for each 
+			
+			$content.model_id:=$model.model_id
+			
+			$item[$model.model]:=$content
 			
 			If ($model.jinja_explicit#Null:C1517) && (OB Instance of:C1731($model.jinja_explicit; 4D:C1709.File)) && ($model.jinja_explicit.exists)
 				$item.jinja_explicit:=This:C1470.expand($model.jinja_explicit).path
@@ -52,7 +64,7 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 			If ($model.in_situ_quant#"")
 				$item.in_situ_quant:=$model.in_situ_quant
 			End if 
-			$config_json[$key]:=$item
+			$config_json[$entry]:=$item
 		End for each 
 	End if 
 	
@@ -187,7 +199,7 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 		End case 
 	End for each 
 	
-	SET TEXT TO PASTEBOARD:C523($command)
+	//SET TEXT TO PASTEBOARD($command)
 	
 	return This:C1470.controller.execute($command; $isStream ? $option.model : Null:C1517; $option.data).worker
 	

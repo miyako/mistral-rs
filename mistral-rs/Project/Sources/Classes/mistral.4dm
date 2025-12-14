@@ -21,19 +21,28 @@ Class constructor($port : Integer; $models : Collection; $options : Object; $eve
 			var $file : 4D:C1709.File
 			var $URL : Text
 			
-			$URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
-			$file:=$homeFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
-			$model_id:="Qwen/Qwen3-7B"
-			
-			$model:=cs:C1710.mistralModel.new($file; $URL; $model_id)
+			$URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
+			$file:=Null:C1517
+			$model_id:=$URL
+			$model:=cs:C1710.mistralModel.new($file; $URL; $model_id; "VisionPlain"; {\
+				dtype: "auto"; \
+				max_num_images: 4; \
+				max_image_length: 1024; \
+				max_batch_size: 2048; \
+				max_seq_len: 2048})
 			$models.push($model)
 			
-			$URL:="https://huggingface.co/nomic-ai/nomic-embed-text-v1-GGUF/resolve/main/nomic-embed-text-v1.f16.gguf"
-			$file:=$homeFolder.file("nomic-embed-text-v1.f16.gguf")
-			$model_id:="nomic/nomic-embed-text-v1"
+			$URL:="Qwen/Qwen3-Embedding-0.6B-GGUF"
+			$file:=Null:C1517
+			$model_id:=$URL
+			$model:=cs:C1710.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
+				dtype: "auto"; arch: "qwen3"; \
+				quantized_model_id: $model_id; \
+				quantized_filename: "Qwen3-Embedding-0.6B-Q8_0.gguf"; \
+				max_batch_size: 2048; \
+				max_seq_len: 2048})
 			
-			$model:=cs:C1710.mistralModel.new($file; $URL; $model_id)
-			$models.push($model)
+			$options.command:="multi-model"
 			
 		End if 
 		
