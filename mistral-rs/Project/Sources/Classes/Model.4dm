@@ -11,11 +11,12 @@ property returnResponseBody : Boolean
 property decodeData : Boolean
 property range : Object
 property bufferSize : Integer
+property models : Collection
 property event : cs:C1710._event
 
-Class constructor($port : Integer; $file : 4D:C1709.File; $URL : Text; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710._event)
+Class constructor($port : Integer; $models : Collection; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710._event)
 	
-	This:C1470.file:=$file
+	//This.file:=$file
 	This:C1470.URL:=$URL
 	This:C1470.method:="GET"
 	This:C1470.headers:={Accept: "application/vnd.github+json"}
@@ -23,32 +24,44 @@ Class constructor($port : Integer; $file : 4D:C1709.File; $URL : Text; $options 
 	This:C1470.automaticRedirections:=True:C214
 	This:C1470.options:=$options#Null:C1517 ? $options : {}
 	This:C1470.options.port:=$port
-	This:C1470.options.model:=$file
+	//This.options.model:=$file
+	This:C1470.options.models:=$models
 	This:C1470._onResponse:=$formula
 	This:C1470.returnResponseBody:=False:C215
 	This:C1470.decodeData:=False:C215
 	This:C1470.bufferSize:=10*(1024^2)
 	This:C1470.event:=$event
 	
-	Case of 
-		: (OB Instance of:C1731($file; 4D:C1709.File))
-			If (Not:C34(This:C1470.file.exists))
-				If (This:C1470.file.parent#Null:C1517)
-					This:C1470.file.parent.create()
-					This:C1470.head()
-				End if 
-			Else 
-				This:C1470.start()
-			End if 
-		Else 
-			//hugging face mode
-			This:C1470.options.model:=This:C1470.URL
-			This:C1470.file:={name: This:C1470.URL}
-			This:C1470.start()
-	End case 
+	This:C1470.start()
 	
-Function head()
+	//Case of 
+	//: (OB Instance of($file; 4D.File))
+	//If (Not(This.file.exists))
+	//If (This.file.parent#Null)
+	//This.file.parent.create()
+	//This.head()
+	//End if 
+	//Else 
+	//This.start()
+	//End if 
+	//Else 
+	////hugging face mode
+	//This.options.model:=This.URL
+	//This.file:={name: This.URL}
+	//This.start()
+	//End case 
 	
+Function _head($model : cs:C1710._model)
+	
+	If ($model.file.parent#Null:C1517) && ($model.URL#"")
+		$model.file.parent.create()
+		This:C1470.head($model)
+	End if 
+	
+Function head($model : cs:C1710._model)
+	
+	This:C1470.file:=$model.file
+	This:C1470.URL:=$model.URL
 	This:C1470.method:="HEAD"
 	This:C1470.range:={length: 0; start: 0; end: 0}
 	//HEAD; async onResponse not supported
@@ -76,13 +89,36 @@ Function head()
 	
 Function start()
 	
-	var $mistral : cs:C1710.workers.worker
-	$mistral:=cs:C1710.workers.worker.new(cs:C1710._server)
-	$mistral.start(This:C1470.options.port; This:C1470.options)
+	var $URLs : Collection
+	$URLs:=This:C1470.options.models.filter(Formula:C1597(Value type:C1509($1.value)=Is text:K8:3))
 	
-	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
-		This:C1470.event.onSuccess.call(This:C1470; This:C1470.options)
-	End if 
+	var $model : cs:C1710._model
+	$model:=This:C1470.options.models.query("file.exists == :1"; False:C215).first()
+	
+	Case of 
+		: ($model#Null:C1517)
+			
+			This:C1470._head($model)
+			
+		: ($URLs.length#0)
+			//hugging face mode
+			var $URL : Text
+			$URL:=$URLs[0]
+			This:C1470.options.model:=$URL
+			This:C1470.file:={name: $URL}
+			This:C1470.start()
+			
+		Else 
+			
+			var $mistral : cs:C1710.workers.worker
+			$mistral:=cs:C1710.workers.worker.new(cs:C1710._server)
+			$mistral.start(This:C1470.options.port; This:C1470.options)
+			
+			If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
+				This:C1470.event.onSuccess.call(This:C1470; This:C1470.options)
+			End if 
+			
+	End case 
 	
 Function terminate()
 	

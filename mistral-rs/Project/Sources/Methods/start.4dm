@@ -2,4 +2,4 @@
 #DECLARE($options : Object; $formula : 4D:C1709.Function)
 
 var $model : cs:C1710.Model
-$model:=cs:C1710.Model.new($options.port; $options.file; $options.URL; $options.options; $formula; $options.event)
+$model:=cs:C1710.Model.new($options.port; $options.models; $options.options; $formula; $options.event)

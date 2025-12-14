@@ -47,12 +47,19 @@ Else
     If (False)
         //custom model download mode
         $URL:="https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q5_K_M.gguf"
-        $file:=$modelsFolder.file("Qwen3-1.7B-Q5_K_M.gguf")
-        $mistral:=cs.mistral.mistral.new($port; $file; $URL; {command: "gguf"}; $event)
+        $file:=$homeFolder.file("Qwen/Qwen3-1.7B-Q5_K_M.gguf")
+        $model_id:="Qwen/Qwen3-7B"
+        $model:=cs.mistralModel.new($file; $URL; $model_id)
+        $models.push($model)
+        $mistral:=cs.mistral.new($port; $models; {command: "gguf"}; $event)
     Else 
         //hugging face mode
         $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
-        $mistral:=cs.mistral.mistral.new($port; Null; $URL; {command: "vision-plain"}; $event)
+        $file:=Null
+        $model_id:=$URL
+        $model:=cs.mistralModel.new($file; $URL; $model_id)
+        $models.push($model)
+        $mistral:=cs.mistral.new($port; $models; {command: "vision-plain"}; $event)
     End if 
 End if  
 ```
