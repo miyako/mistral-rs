@@ -1,7 +1,6 @@
 # mistral-rs
 Local inference engine
 
-
 ### Apple Silicon
 
 ```
