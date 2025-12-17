@@ -12,12 +12,10 @@ property decodeData : Boolean
 property range : Object
 property bufferSize : Integer
 property models : Collection
-property event : cs:C1710._event
+property event : cs:C1710.event.event
 
-Class constructor($port : Integer; $models : Collection; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710._event)
+Class constructor($port : Integer; $models : Collection; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710.event.event)
 	
-	//This.file:=$file
-	This:C1470.URL:=$URL
 	This:C1470.method:="GET"
 	This:C1470.headers:={Accept: "application/vnd.github+json"}
 	This:C1470.dataType:="blob"
@@ -33,23 +31,6 @@ Class constructor($port : Integer; $models : Collection; $options : Object; $for
 	This:C1470.event:=$event
 	
 	This:C1470.start()
-	
-	//Case of 
-	//: (OB Instance of($file; 4D.File))
-	//If (Not(This.file.exists))
-	//If (This.file.parent#Null)
-	//This.file.parent.create()
-	//This.head()
-	//End if 
-	//Else 
-	//This.start()
-	//End if 
-	//Else 
-	////hugging face mode
-	//This.options.model:=This.URL
-	//This.file:={name: This.URL}
-	//This.start()
-	//End case 
 	
 Function _head($model : cs:C1710._model)
 	
@@ -92,13 +73,13 @@ Function start()
 	var $URLs : Collection
 	$URLs:=This:C1470.options.models.filter(Formula:C1597(Value type:C1509($1.value)=Is text:K8:3))
 	
-	var $model : cs:C1710._model
-	$model:=This:C1470.options.models.query("file.exists == :1"; False:C215).first()
+	var $_model : cs:C1710.mistralModel
+	$_model:=This:C1470.options.models.query("file.exists == :1"; False:C215).first()
 	
 	Case of 
-		: ($model#Null:C1517)
+		: ($_model#Null:C1517)
 			
-			This:C1470._head($model)
+			This:C1470._head($_model)
 			
 		: ($URLs.length#0)
 			//hugging face mode
@@ -114,8 +95,17 @@ Function start()
 			$mistral:=cs:C1710.workers.worker.new(cs:C1710._server)
 			$mistral.start(This:C1470.options.port; This:C1470.options)
 			
-			If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710._event))
-				This:C1470.event.onSuccess.call(This:C1470; This:C1470.options)
+			If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
+				var $model : cs:C1710.event.model
+				var $_models : Collection
+				$_models:=[]
+				For each ($_model; This:C1470.options.models)
+					$model:=cs:C1710.event.model.new($_model.model_id; Not:C34($_model.file.exists))
+					$_models.push($model)
+				End for each 
+				var $models : cs:C1710.event.models
+				$models:=cs:C1710.event.models.new($_models)
+				This:C1470.event.onSuccess.call(This:C1470; This:C1470.options; $models)
 			End if 
 			
 	End case 
@@ -132,6 +122,10 @@ Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
 		This:C1470._fileHandle.writeBlob($event.data)
 	End if 
 	
+	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
+		This:C1470.event.onData.call(This:C1470; $request; $event)
+	End if 
+	
 Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 	
 	If ($request.dataType="blob") && ($request.response.body#Null:C1517)
@@ -142,6 +136,9 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 		: (This:C1470.range.end=0)  //simple get
 			If ($request.response.status=200)
 				This:C1470._fileHandle:=Null:C1517
+				If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
+					This:C1470.event.onResponse.call(This:C1470; $request; $event)
+				End if 
 				This:C1470.start()
 			End if 
 		Else   //range get
@@ -156,6 +153,9 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 					4D:C1709.HTTPRequest.new(This:C1470.URL; This:C1470)
 				Else 
 					This:C1470._fileHandle:=Null:C1517
+					If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
+						This:C1470.event.onResponse.call(This:C1470; $request; $event)
+					End if 
 					This:C1470.start()
 				End if 
 			End if 

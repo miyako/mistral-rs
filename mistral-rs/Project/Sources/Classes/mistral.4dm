@@ -1,4 +1,4 @@
-Class constructor($port : Integer; $models : Collection; $options : Object; $event : cs:C1710._event)
+Class constructor($port : Integer; $models : Collection; $options : Object; $event : cs:C1710.event.event)
 	
 	var $mistral : cs:C1710.workers.worker
 	$mistral:=cs:C1710.workers.worker.new(cs:C1710._server)
@@ -67,10 +67,10 @@ Function onTCP($status : Object; $options : Object)
 		
 		var $statuses : Text
 		$statuses:="TCP port "+String:C10($status.port)+" is aready used by process "+$status.PID.join(",")
-		var $error : cs:C1710._error
-		$error:=cs:C1710._error.new(1; $statuses)
+		var $error : cs:C1710.event.error
+		$error:=cs:C1710.event.error.new(1; $statuses)
 		
-		If ($options.event#Null:C1517) && (OB Instance of:C1731($options.event; cs:C1710._event))
+		If ($options.event#Null:C1517) && (OB Instance of:C1731($options.event; cs:C1710.event.event))
 			$options.event.onError.call(This:C1470; $options; $error)
 		End if 
 		
@@ -78,7 +78,7 @@ Function onTCP($status : Object; $options : Object)
 		
 	End if 
 	
-Function main($port : Integer; $models : Collection; $options : Object; $event : cs:C1710._event)
+Function main($port : Integer; $models : Collection; $options : Object; $event : cs:C1710.event.event)
 	
 	main({port: $port; models: $models; options: $options; event: $event}; This:C1470.onTCP)
 	

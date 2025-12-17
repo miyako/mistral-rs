@@ -49,20 +49,21 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 			End for each 
 			
 			$content.model_id:=$model.model_id
-			
 			$item[$model.model]:=$content
 			
-			If ($model.jinja_explicit#Null:C1517) && (OB Instance of:C1731($model.jinja_explicit; 4D:C1709.File)) && ($model.jinja_explicit.exists)
-				$item.jinja_explicit:=This:C1470.expand($model.jinja_explicit).path
-			End if 
-			If ($model.chat_template#"")
-				$item.chat_template:=$model.chat_template
-			End if 
-			If ($model.num_device_layers#0)
-				$item.num_device_layers:=$model.num_device_layers
-			End if 
-			If ($model.in_situ_quant#"")
-				$item.in_situ_quant:=$model.in_situ_quant
+			If ($model.options#Null:C1517)
+				If ($model.options.jinja_explicit#Null:C1517) && (OB Instance of:C1731($model.options.jinja_explicit; 4D:C1709.File)) && ($model.options.jinja_explicit.exists)
+					$item.jinja_explicit:=This:C1470.expand($model.options.jinja_explicit).path
+				End if 
+				If ($model.options.chat_template#"")
+					$item.chat_template:=$model.options.chat_template
+				End if 
+				If ($model.options.num_device_layers#0)
+					$item.num_device_layers:=$model.options.num_device_layers
+				End if 
+				If ($model.options.in_situ_quant#"")
+					$item.in_situ_quant:=$model.options.in_situ_quant
+				End if 
 			End if 
 			$config_json[$entry]:=$item
 		End for each 
