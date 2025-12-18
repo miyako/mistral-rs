@@ -1,3 +1,8 @@
+property port : Integer
+property onData : 4D:C1709.Function
+property onDataError : 4D:C1709.Function
+property onTerminate : 4D:C1709.Function
+
 Class extends _CLI
 
 Class constructor($controller : 4D:C1709.Class)
@@ -16,6 +21,15 @@ Class constructor($controller : 4D:C1709.Class)
 	End case 
 	
 	Super:C1705($program; $controller)
+	
+Function bind($option : Object; $properties : Collection) : cs:C1710._mistral
+	
+	var $property : Text
+	For each ($property; $properties)
+		This:C1470[$property]:=$option[$property]
+	End for each 
+	
+	return This:C1470
 	
 Function get worker() : 4D:C1709.SystemWorker
 	

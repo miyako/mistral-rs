@@ -33,18 +33,27 @@ Else
     var $file : 4D.File
     
     var $port : Integer
-    $port:=8080
+    $port:=8084
     
     var $event : cs.event.event
     $event:=cs.event.event.new()
     /*
         Function onError($params : Object; $error : cs.event.error)
         Function onSuccess($params : Object; $models : cs.event.models)
+        Function onData($request : 4D.HTTPRequest; $event : Object)
+        Function onResponse($request : 4D.HTTPRequest; $event : Object)
+        Function onTerminate($worker : 4D.SystemWorker; $params : Object)
+        Function onStdOut($worker : 4D.SystemWorker; $params : Object)
+        Function onStdErr($worker : 4D.SystemWorker; $params : Object)
     */
+    
     $event.onError:=Formula(ALERT($2.message))
     $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
-    $event.onData:=Formula(MESSAGE(String((This.range.end/This.range.length)*100; "###.00%")))  //onData@4D.HTTPRequest
-    $event.onResponse:=Formula(ERASE WINDOW)  //onResponse@4D.HTTPRequest
+    $event.onData:=Formula(LOG EVENT(Into 4D debug message; "download:"+String((This.range.end/This.range.length)*100; "###.00%")))
+    $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; "download complete"))
+    $event.onStdOut:=Formula(LOG EVENT(Into 4D debug message; "out:"+$2.data))
+    $event.onStdErr:=Formula(LOG EVENT(Into 4D debug message; "err:"+$2.data))
+    $event.onTerminate:=Formula(LOG EVENT(Into 4D debug message; (["process"; $1.pid; "terminated!"].join(" "))))
     
     var $models : Collection
     $models:=[]
@@ -54,7 +63,7 @@ Else
         $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
         $file:=Null
         $model_id:=$URL
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "VisionPlain"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "VisionPlain"; {\
         dtype: "auto"; \
         max_num_images: 4; \
         max_image_length: 1024; \
@@ -65,7 +74,7 @@ Else
         $URL:="Qwen/Qwen3-Embedding-0.6B-GGUF"
         $file:=Null
         $model_id:=$URL
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
         dtype: "auto"; arch: "qwen3"; \
         quantized_model_id: $model_id; \
         quantized_filename: "Qwen3-Embedding-0.6B-Q8_0.gguf"; \
@@ -84,7 +93,7 @@ Else
         $file:=$homeFolder.file("Qwen/Qwen3-1.7B-Q5_K_M.gguf")
         $model_id:="Qwen/Qwen3-1.7B"
         
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
         dtype: "auto"; arch: "qwen3"; \
         quantized_model_id: $model_id; \
         quantized_filename: "Qwen3-1.7B-Q5_K_M.gguf"; \
@@ -97,7 +106,7 @@ Else
         $file:=$homeFolder.file("Qwen/Qwen3-Embedding-0.6B-Q8_0.gguf")
         $model_id:="Qwen/Qwen3-Embedding-0.6B"
         
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
         dtype: "auto"; arch: "qwen3"; \
         quantized_model_id: $model_id; \
         quantized_filename: "Qwen3-Embedding-0.6B-Q8_0.gguf"; \

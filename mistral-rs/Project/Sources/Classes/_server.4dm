@@ -6,6 +6,8 @@ Class constructor($controller : 4D:C1709.Class)
 	
 Function start($option : Object) : 4D:C1709.SystemWorker
 	
+	This:C1470.bind($option; ["port"; "onStdOut"; "onStdErr"; "onTerminate"])
+	
 	var $command : Text
 	$command:=This:C1470.escape(This:C1470.executablePath)
 	
@@ -181,7 +183,7 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 	
 	For each ($arg; OB Entries:C1720($option))
 		Case of 
-			: (["models"; "command"].includes($arg.key))
+			: (["models"; "command"; "help"; "version"].includes($arg.key))
 				continue
 		End case 
 		$valueType:=Value type:C1509($arg.value)

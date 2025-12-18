@@ -11,7 +11,6 @@ property returnResponseBody : Boolean
 property decodeData : Boolean
 property range : Object
 property bufferSize : Integer
-property models : Collection
 property event : cs:C1710.event.event
 
 Class constructor($port : Integer; $models : Collection; $options : Object; $formula : 4D:C1709.Function; $event : cs:C1710.event.event)
@@ -22,15 +21,30 @@ Class constructor($port : Integer; $models : Collection; $options : Object; $for
 	This:C1470.automaticRedirections:=True:C214
 	This:C1470.options:=$options#Null:C1517 ? $options : {}
 	This:C1470.options.port:=$port
-	//This.options.model:=$file
 	This:C1470.options.models:=$models
 	This:C1470._onResponse:=$formula
 	This:C1470.returnResponseBody:=False:C215
 	This:C1470.decodeData:=False:C215
 	This:C1470.bufferSize:=10*(1024^2)
 	This:C1470.event:=$event
+	This:C1470.options.onTerminate:=This:C1470.event.onTerminate
+	This:C1470.options.onStdErr:=This:C1470.event.onStdErr
+	This:C1470.options.onStdOut:=This:C1470.event.onStdOut
 	
 	This:C1470.start()
+	
+Function models() : cs:C1710.event.models
+	
+	var $model : cs:C1710.event.model
+	var $models : Collection
+	$models:=[]
+	var $_model : cs:C1710.mistralModel
+	For each ($_model; This:C1470.options.models)
+		$model:=cs:C1710.event.model.new($_model.model_id; Not:C34($_model.file.exists))
+		$models.push($model)
+	End for each 
+	
+	return cs:C1710.event.models.new($models)
 	
 Function _head($model : cs:C1710._model)
 	
@@ -66,6 +80,8 @@ Function head($model : cs:C1710._model)
 			This:C1470.headers.Range:="bytes="+String:C10(This:C1470.range.start)+"-"+String:C10(This:C1470.range.end)
 		End if 
 		4D:C1709.HTTPRequest.new(This:C1470.URL; This:C1470)
+	Else 
+		This:C1470._onResponse.call(This:C1470; {success: False:C215}; This:C1470.options)
 	End if 
 	
 Function start()
@@ -96,25 +112,10 @@ Function start()
 			$mistral.start(This:C1470.options.port; This:C1470.options)
 			
 			If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
-				var $model : cs:C1710.event.model
-				var $_models : Collection
-				$_models:=[]
-				For each ($_model; This:C1470.options.models)
-					$model:=cs:C1710.event.model.new($_model.model_id; Not:C34($_model.file.exists))
-					$_models.push($model)
-				End for each 
-				var $models : cs:C1710.event.models
-				$models:=cs:C1710.event.models.new($_models)
-				This:C1470.event.onSuccess.call(This:C1470; This:C1470.options; $models)
+				This:C1470.event.onSuccess.call(This:C1470; This:C1470.options; This:C1470.models())
 			End if 
 			
 	End case 
-	
-Function terminate()
-	
-	var $mistral : cs:C1710.workers.worker
-	$mistral:=cs:C1710.workers.worker.new()
-	$mistral.terminate()
 	
 Function onData($request : 4D:C1709.HTTPRequest; $event : Object)
 	
@@ -168,5 +169,4 @@ Function onError($request : 4D:C1709.HTTPRequest; $event : Object)
 		This:C1470._onResponse.call(This:C1470; {success: False:C215})
 		This:C1470._fileHandle:=Null:C1517
 		This:C1470.file.delete()
-		This:C1470.terminate()
 	End if 
