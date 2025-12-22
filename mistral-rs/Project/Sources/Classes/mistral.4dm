@@ -41,6 +41,7 @@ Class constructor($port : Integer; $models : Collection; $options : Object; $eve
 				quantized_filename: "Qwen3-Embedding-0.6B-Q8_0.gguf"; \
 				max_batch_size: 2048; \
 				max_seq_len: 2048})
+			$models.push($model)
 			
 			$options.command:="multi-model"
 			
@@ -50,11 +51,11 @@ Class constructor($port : Integer; $models : Collection; $options : Object; $eve
 			$port:=8080
 		End if 
 		
-		This:C1470.main($port; $models; $options; $event)
+		This:C1470._main($port; $models; $options; $event)
 		
 	End if 
 	
-Function onTCP($status : Object; $options : Object)
+Function _onTCP($status : Object; $options : Object)
 	
 	If ($status.success)
 		
@@ -76,9 +77,9 @@ Function onTCP($status : Object; $options : Object)
 		
 	End if 
 	
-Function main($port : Integer; $models : Collection; $options : Object; $event : cs:C1710.event.event)
+Function _main($port : Integer; $models : Collection; $options : Object; $event : cs:C1710.event.event)
 	
-	main({port: $port; models: $models; options: $options; event: $event}; This:C1470.onTCP)
+	main({port: $port; models: $models; options: $options; event: $event}; This:C1470._onTCP)
 	
 Function terminate()
 	
