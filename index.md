@@ -46,7 +46,7 @@ Else
     */
     
     $event.onError:=Formula(ALERT($2.message))
-    $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
+    $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" launch requested"))  //not yet ready; poll /health
     $event.onData:=Formula(LOG EVENT(Into 4D debug message; "download:"+String((This.range.end/This.range.length)*100; "###.00%")))
     $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; "download complete"))
     $event.onTerminate:=Formula(LOG EVENT(Into 4D debug message; (["process"; $1.pid; "terminated!"].join(" "))))
@@ -121,6 +121,10 @@ Unless the server is already running (in which case the costructor does nothing)
 
 1. The specified model is downloaded via HTTP
 2. The `mistralrs-server` program is started
+
+`onSuccess` is called when the launch of `mistralrs-server` has been requested, not when the server is ready to accept requests; poll the `/health` endpoint to wait for readiness. `$event` may be `Null` (for example with `cs.mistral.mistral.new()`), in which case no callbacks are delivered. The server's stdout and stderr are intentionally not forwarded, because a long-running server can produce a large amount of output.
+
+Numeric options are passed to `mistralrs-server` with `.` as the decimal separator regardless of the system locale.
 
 Now you can test the server:
 
