@@ -27,9 +27,11 @@ Class constructor($port : Integer; $models : Collection; $options : Object; $for
 	This:C1470.decodeData:=False:C215
 	This:C1470.bufferSize:=10*(1024^2)
 	This:C1470.event:=$event
-	This:C1470.options.onTerminate:=This:C1470.event.onTerminate
-	This:C1470.options.onStdErr:=This:C1470.event.onStdErr
-	This:C1470.options.onStdOut:=This:C1470.event.onStdOut
+	If (This:C1470.event#Null:C1517)
+		This:C1470.options.onTerminate:=This:C1470.event.onTerminate
+		This:C1470.options.onStdErr:=This:C1470.event.onStdErr
+		This:C1470.options.onStdOut:=This:C1470.event.onStdOut
+	End if 
 	
 	This:C1470.start()
 	
@@ -40,7 +42,7 @@ Function models() : cs:C1710.event.models
 	$models:=[]
 	var $_model : cs:C1710.mistralModel
 	For each ($_model; This:C1470.options.models)
-		$model:=cs:C1710.event.model.new($_model.model_id; Not:C34($_model.file.exists))
+		$model:=cs:C1710.event.model.new($_model.model_id; ($_model.file=Null:C1517) || Not:C34($_model.file.exists))
 		$models.push($model)
 	End for each 
 	
@@ -98,12 +100,12 @@ Function start()
 			This:C1470._head($_model)
 			
 		: ($URLs.length#0)
-			//hugging face mode
-			var $URL : Text
-			$URL:=$URLs[0]
-			This:C1470.options.model:=$URL
-			This:C1470.file:={name: $URL}
-			This:C1470.start()
+			//plain text entries are not supported (this branch used to call start() again forever)
+			This:C1470._notifyError(cs:C1710.event.error.new(2; "unsupported model entry: "+$URLs[0]+" (use cs.mistralModel)"; cs:C1710.event.models.new([])))
+			
+		: (This:C1470.options.command#"multi-model") && (This:C1470.options.models.length=0)
+			//_server does not launch without a model
+			This:C1470._notifyError(cs:C1710.event.error.new(2; "no model to load: options.models is empty"; This:C1470.models()))
 			
 		Else 
 			
@@ -141,6 +143,8 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 					This:C1470.event.onResponse.call(This:C1470; $request; $event)
 				End if 
 				This:C1470.start()
+			Else 
+				This:C1470.onError($request; $event)
 			End if 
 		Else   //range get
 			If ([200; 206].includes($request.response.status))
@@ -159,6 +163,8 @@ Function onResponse($request : 4D:C1709.HTTPRequest; $event : Object)
 					End if 
 					This:C1470.start()
 				End if 
+			Else 
+				This:C1470.onError($request; $event)
 			End if 
 			
 	End case 
@@ -169,4 +175,10 @@ Function onError($request : 4D:C1709.HTTPRequest; $event : Object)
 		This:C1470._onResponse.call(This:C1470; {success: False:C215}; This:C1470.options)
 		This:C1470._fileHandle:=Null:C1517
 		This:C1470.file.delete()
+	End if 
+	
+Function _notifyError($error : cs:C1710.event.error)
+	
+	If (This:C1470.event#Null:C1517) && (OB Instance of:C1731(This:C1470.event; cs:C1710.event.event))
+		This:C1470.event.onError.call(This:C1470; This:C1470.options; $error)
 	End if 

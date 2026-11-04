@@ -94,13 +94,13 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 				OB REMOVE:C1226($option; $arg.key)
 				Case of 
 					: ($valueType=Is real:K8:4)
-						$command+=(" --"+$key+" "+String:C10($arg.value)+" ")
+						$command+=(" --"+$key+" "+_argNumber($arg.value)+" ")
 					: ($valueType=Is text:K8:3)
 						$command+=(" --"+$key+" "+This:C1470.escape($arg.value)+" ")
 					: ($valueType=Is boolean:K8:9) && ($arg.value)
 						$command+=(" --"+$key+" ")
 					: ($valueType=Is object:K8:27) && ((OB Instance of:C1731($arg.value; 4D:C1709.File)) || (OB Instance of:C1731($arg.value; 4D:C1709.Folder)))
-						$command+=(" --"+$key+" "+This:C1470.escape(This:C1470.expand($option.model).path))
+						$command+=(" --"+$key+" "+This:C1470.escape(This:C1470.expand($arg.value).path))
 					Else 
 						//
 				End case 
@@ -190,7 +190,7 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 		$key:=Replace string:C233($arg.key; "_"; "-"; *)
 		Case of 
 			: ($valueType=Is real:K8:4)
-				$command+=(" --"+$key+" "+String:C10($arg.value)+" ")
+				$command+=(" --"+$key+" "+_argNumber($arg.value)+" ")
 			: ($valueType=Is text:K8:3)
 				$command+=(" --"+$key+" "+This:C1470.escape($arg.value)+" ")
 			: ($valueType=Is boolean:K8:9) && ($arg.value)
@@ -204,5 +204,5 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 	
 	//SET TEXT TO PASTEBOARD($command)
 	
-	return This:C1470.controller.execute($command; $isStream ? $option.model : Null:C1517; $option.data).worker
+	return This:C1470.controller.execute($command; Null:C1517; $option.data).worker
 	

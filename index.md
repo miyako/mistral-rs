@@ -33,7 +33,7 @@ Else
     var $file : 4D.File
     
     var $port : Integer
-    $port:=8084
+    $port:=8080
     
     var $event : cs.event.event
     $event:=cs.event.event.new()
@@ -46,7 +46,7 @@ Else
     */
     
     $event.onError:=Formula(ALERT($2.message))
-    $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" loaded!"))
+    $event.onSuccess:=Formula(ALERT($2.models.extract("name").join(",")+" launch requested"))  //not yet ready; poll /health
     $event.onData:=Formula(LOG EVENT(Into 4D debug message; "download:"+String((This.range.end/This.range.length)*100; "###.00%")))
     $event.onResponse:=Formula(LOG EVENT(Into 4D debug message; "download complete"))
     $event.onTerminate:=Formula(LOG EVENT(Into 4D debug message; (["process"; $1.pid; "terminated!"].join(" "))))
@@ -59,7 +59,7 @@ Else
         $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
         $file:=Null
         $model_id:=$URL
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "VisionPlain"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "VisionPlain"; {\
         dtype: "auto"; \
         max_num_images: 4; \
         max_image_length: 1024; \
@@ -70,7 +70,7 @@ Else
         $URL:="Qwen/Qwen3-Embedding-0.6B-GGUF"
         $file:=Null
         $model_id:=$URL
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
         dtype: "auto"; arch: "qwen3"; \
         quantized_model_id: $model_id; \
         quantized_filename: "Qwen3-Embedding-0.6B-Q8_0.gguf"; \
@@ -117,10 +117,16 @@ Else
 End if 
 ```
 
-Unless the server is already running (in which case the costructor does nothing), the following procedure runs in the background:
+Unless the server is already running (in which case the constructor does nothing), the following procedure runs in the background:
 
 1. The specified model is downloaded via HTTP
 2. The `mistralrs-server` program is started
+
+`onSuccess` is called when the launch of `mistralrs-server` has been requested, not when the server is ready to accept requests; poll the `/health` endpoint to wait for readiness. `$event` may be `Null` (for example with `cs.mistral.mistral.new()`), in which case no callbacks are delivered. The server's stdout and stderr are intentionally not forwarded, because a long-running server can produce a large amount of output.
+
+`onError` receives an error with code `2` and the server is not started when a download fails (non-200 response), when `models` contains a plain text entry instead of a `cs.mistralModel`, or when `models` is empty and `command` is not `multi-model`.
+
+Numeric options are passed to `mistralrs-server` with `.` as the decimal separator regardless of the system locale.
 
 Now you can test the server:
 
