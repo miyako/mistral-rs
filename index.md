@@ -33,7 +33,7 @@ Else
     var $file : 4D.File
     
     var $port : Integer
-    $port:=8084
+    $port:=8080
     
     var $event : cs.event.event
     $event:=cs.event.event.new()
@@ -59,7 +59,7 @@ Else
         $URL:="EricB/Llama-3.2-11B-Vision-Instruct-UQFF"
         $file:=Null
         $model_id:=$URL
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "VisionPlain"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "VisionPlain"; {\
         dtype: "auto"; \
         max_num_images: 4; \
         max_image_length: 1024; \
@@ -70,7 +70,7 @@ Else
         $URL:="Qwen/Qwen3-Embedding-0.6B-GGUF"
         $file:=Null
         $model_id:=$URL
-        $model:=cs.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
+        $model:=cs.mistral.mistralModel.new($file; $URL; $model_id; "GGUF"; {\
         dtype: "auto"; arch: "qwen3"; \
         quantized_model_id: $model_id; \
         quantized_filename: "Qwen3-Embedding-0.6B-Q8_0.gguf"; \
