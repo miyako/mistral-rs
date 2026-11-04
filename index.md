@@ -117,7 +117,7 @@ Else
 End if 
 ```
 
-Unless the server is already running (in which case the costructor does nothing), the following procedure runs in the background:
+Unless the server is already running (in which case the constructor does nothing), the following procedure runs in the background:
 
 1. The specified model is downloaded via HTTP
 2. The `mistralrs-server` program is started
