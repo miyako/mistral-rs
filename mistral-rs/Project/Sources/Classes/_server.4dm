@@ -100,7 +100,7 @@ Function start($option : Object) : 4D:C1709.SystemWorker
 					: ($valueType=Is boolean:K8:9) && ($arg.value)
 						$command+=(" --"+$key+" ")
 					: ($valueType=Is object:K8:27) && ((OB Instance of:C1731($arg.value; 4D:C1709.File)) || (OB Instance of:C1731($arg.value; 4D:C1709.Folder)))
-						$command+=(" --"+$key+" "+This:C1470.escape(This:C1470.expand($option.model).path))
+						$command+=(" --"+$key+" "+This:C1470.escape(This:C1470.expand($arg.value).path))
 					Else 
 						//
 				End case 

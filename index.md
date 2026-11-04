@@ -124,6 +124,8 @@ Unless the server is already running (in which case the constructor does nothing
 
 `onSuccess` is called when the launch of `mistralrs-server` has been requested, not when the server is ready to accept requests; poll the `/health` endpoint to wait for readiness. `$event` may be `Null` (for example with `cs.mistral.mistral.new()`), in which case no callbacks are delivered. The server's stdout and stderr are intentionally not forwarded, because a long-running server can produce a large amount of output.
 
+`onError` receives an error with code `2` and the server is not started when a download fails (non-200 response), when `models` contains a plain text entry instead of a `cs.mistralModel`, or when `models` is empty and `command` is not `multi-model`.
+
 Numeric options are passed to `mistralrs-server` with `.` as the decimal separator regardless of the system locale.
 
 Now you can test the server:
